@@ -7,7 +7,6 @@ const app = express();
 const index = require('./routes/index');
 const modelRoute = require('./routes/model.routes');
 const airplaneRoute = require('./routes/airplane.routes');
-const anacTestRoute = require('./routes/anac_test.routes');
 const syndicateRoute = require('./routes/syndicate.routes');
 const employeeRoute = require('./routes/employee.routes');
 
@@ -19,7 +18,6 @@ app.use(cors());
 app.use(index);
 app.use('/api/', modelRoute);
 app.use('/api/', airplaneRoute);
-app.use('/api/', anacTestRoute);
 app.use('/api/', syndicateRoute);
 app.use('/api/', employeeRoute);
 

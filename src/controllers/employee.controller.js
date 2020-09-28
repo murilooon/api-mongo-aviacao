@@ -1,66 +1,78 @@
-const knex = require('../../database/db');
+const Employee = require('../../database/models/Employee');
+const ObjectId = require('mongodb').ObjectId;
 
 exports.createEmployee = async (req, res) => {
-  const { syndicate_id, name, address, phone, salary } = req.body;
+  const { syndicate, name, address, phone, salary } = req.body;
+  console.log(syndicate)
 
-  await knex('employee')
-    .insert({
-      'syndicate_id': syndicate_id,
-      'name': name,
-      'address': address,
-      'phone': phone,
-      'salary': salary
-    })
+  let employee = new Employee({
+    name: name,
+    address: address,
+    phone: phone,
+    salary: salary,
+    syndicate: syndicate
+  })
 
-  res.status(201).send({
-    message: 'Employee added successfully!',
-    body: {
-      model: { syndicate_id, name, address, phone, salary },
-    },
-  });
+  employee.save()
+  .then(result => {
+    res.json({ success: true, result: result})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.listAllEmployees = async (req, res) => {
-  const response = await knex('employee')
-    .select('*')
-    .orderBy('name', 'asc')
-
-  res.status(200).send(response);
+  Employee.find()
+  .then(employee => {
+    res.json(employee)
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.findEmployeeById = async (req, res) => {
-  const employee_id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  const response = await knex('employee')
-    .select('*')
-    .where('employee_id', employee_id)
-
-  res.status(200).send(response);
+  Employee.find({_id: ObjectId(id)})
+  .then(employee => {
+    res.json({ success: true, result: employee})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.updateEmployeeById = async (req, res) => {
-  const employee_id = parseInt(req.params.id);
-  const { syndicate_id, name, address, phone, salary } = req.body;
+  const id = req.params.id;
+  const { syndicate, name, address, phone, salary } = req.body;
 
-  await knex('employee')
-    .where('employee_id', employee_id)
-    .update({
-      'syndicate_id': syndicate_id,
-      'name': name,
-      'address': address,
-      'phone': phone,
-      'salary': salary
-    })
+  Employee.update({ _id: id },{
+    syndicate: syndicate,
+    name: name,
+    address: address,
+    phone: phone,
+    salary: salary
+  })
+  .then(employee => {
+    if (!employee) res.json({ success: false, result: "No such employee exists"})
 
-  res.status(200).send({ message: 'Employee Updated Successfully!' });
+    res.json(employee)
+  })
+  .catch(err => {
+      res.json({ success: false, result: err})
+  })
 };
 
 exports.deleteEmployeeById = async (req, res) => {
-  const employee_id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  await knex('employee')
-    .where('employee_id', employee_id)
-    .del()
-
-  res.status(200).send({ message: 'Employee deleted successfully!', employee_id });
+  Employee.deleteOne({ _id: id })
+  .then(
+    res.json({ success: true, result: 'Empregado deletado com sucesso'})
+  )
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };

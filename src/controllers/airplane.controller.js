@@ -1,60 +1,71 @@
-const knex = require('../../database/db');
+const AirplaneModel = require('../../database/models/Airplane');
+const ObjectId = require('mongodb').ObjectId;
 
 exports.createAirplane = async (req, res) => {
-  const { model_id, serial_number } = req.body;
+  const { model, serial_number } = req.body;
 
-  await knex('airplane')
-    .insert({
-      'model_id': model_id,
-      'serial_number': serial_number
-    })
+  let airplane = new AirplaneModel({
+    serial_number: serial_number,
+    model: model
+  })
 
-  res.status(201).send({
-    message: 'Airplane added successfully!',
-    body: {
-      model: { model_id, serial_number },
-    },
-  });
+  airplane.save()
+  .then(result => {
+    res.json({ success: true, result: result})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.listAllAirplanes = async (req, res) => {
-  const response = await knex('airplane')
-    .select('*')
-    .orderBy('model_id', 'asc')
-
-  res.status(200).send(response);
+  AirplaneModel.find()
+  .then(airplane => {
+    res.json(airplane)
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.findAirplaneById = async (req, res) => {
-  const register_id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  const response = await knex('airplane')
-    .select('*')
-    .where('register_id', register_id)
-
-  res.status(200).send(response);
+  AirplaneModel.find({_id: ObjectId(id)})
+  .then(airplane => {
+    res.json({ success: true, result: airplane})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.updateAirplaneById = async (req, res) => {
-  const register_id = parseInt(req.params.id);
+  const id = req.params.id;
   const { model_id, serial_number } = req.body;
 
-  await knex('airplane')
-    .where('register_id', register_id)
-    .update({
-      'model_id': model_id,
-      'serial_number': serial_number
-    })
+  AirplaneModel.update({ _id: id },{
+    model_id: model_id,
+    serial_number: serial_number
+  })
+  .then(airplane => {
+    if (!airplane) res.json({ success: false, result: "No such airplane exists"})
 
-  res.status(200).send({ message: 'Airplane Updated Successfully!' });
+    res.json(airplane)
+  })
+  .catch(err => {
+      res.json({ success: false, result: err})
+  })
 };
 
 exports.deleteAirplaneById = async (req, res) => {
-  const register_id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  await knex('airplane')
-    .where('register_id', register_id)
-    .del()
-
-  res.status(200).send({ message: 'Airplane deleted successfully!', register_id });
+  AirplaneModel.deleteOne({ _id: id })
+  .then(
+    res.json({ success: true, result: 'Avião deletado com sucesso'})
+  )
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };

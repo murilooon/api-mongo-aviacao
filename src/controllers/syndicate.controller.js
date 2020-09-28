@@ -1,58 +1,69 @@
-const knex = require('../../database/db');
+const Syndicate = require('../../database/models/Syndicate');
+const ObjectId = require('mongodb').ObjectId;
 
 exports.createSyndicate = async (req, res) => {
   const { name } = req.body;
 
-  await knex('syndicate')
-    .insert({
-      'name': name
-    })
+  let syndicate = new Syndicate({
+    name: name
+  })
 
-  res.status(201).send({
-    message: 'Syndicate added successfully!',
-    body: {
-      model: { name },
-    },
-  });
+  syndicate.save()
+  .then(result => {
+    res.json({ success: true, result: result})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.listAllSyndicate = async (req, res) => {
-  const response = await knex('syndicate')
-    .select('*')
-    .orderBy('name', 'asc')
-
-  res.status(200).send(response);
+  Syndicate.find()
+  .then(syndicate => {
+    res.json(syndicate)
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.findSyndicateById = async (req, res) => {
-  const syndicate_id = parseInt(req.params.id);
+  const syndicate_id = req.params.id;
 
-  const response = await knex('syndicate')
-    .select('*')
-    .where('syndicate_id', syndicate_id)
-
-  res.status(200).send(response);
+  Syndicate.find({_id: ObjectId(syndicate_id)})
+  .then(syndicate => {
+    res.json({ success: true, result: syndicate})
+  })
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
 
 exports.updateSyndicateById = async (req, res) => {
-  const syndicate_id = parseInt(req.params.id);
+  const id = req.params.id;
   const { name } = req.body;
 
-  await knex('syndicate')
-    .where('syndicate_id', syndicate_id)
-    .update({
-      'name': name
-    })
+  Syndicate.update({ _id: id },{
+    name: name
+  })
+  .then(syndicate => {
+    if (!syndicate) res.json({ success: false, result: "No such syndicate exists"})
 
-  res.status(200).send({ message: 'Syndicate Updated Successfully!' });
+    res.json(syndicate)
+  })
+  .catch(err => {
+      res.json({ success: false, result: err})
+  })
 };
 
 exports.deleteSyndicateById = async (req, res) => {
-  const syndicate_id = parseInt(req.params.id);
+  const id = req.params.id;
 
-  await knex('syndicate')
-    .where('syndicate_id', syndicate_id)
-    .del()
-
-  res.status(200).send({ message: 'Syndicate deleted successfully!', syndicate_id });
+  Syndicate.deleteOne({ _id: id })
+  .then(
+    res.json({ success: true, result: 'Sindicato deletado com sucesso'})
+  )
+  .catch(err => {
+    res.json({ success: false, result: err})
+  })
 };
