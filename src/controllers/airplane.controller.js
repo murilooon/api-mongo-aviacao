@@ -2,11 +2,11 @@ const AirplaneModel = require('../../database/models/Airplane');
 const ObjectId = require('mongodb').ObjectId;
 
 exports.createAirplane = async (req, res) => {
-  const { model, serial_number } = req.body;
+  const { model_id, serial_number } = req.body;
 
   let airplane = new AirplaneModel({
     serial_number: serial_number,
-    model: model
+    model_id: model_id
   })
 
   airplane.save()

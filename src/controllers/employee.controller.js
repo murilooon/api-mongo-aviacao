@@ -2,15 +2,14 @@ const Employee = require('../../database/models/Employee');
 const ObjectId = require('mongodb').ObjectId;
 
 exports.createEmployee = async (req, res) => {
-  const { syndicate, name, address, phone, salary } = req.body;
-  console.log(syndicate)
+  const { syndicate_id, name, address, phone, salary } = req.body;
 
   let employee = new Employee({
     name: name,
     address: address,
     phone: phone,
     salary: salary,
-    syndicate: syndicate
+    syndicate_id: syndicate_id
   })
 
   employee.save()
@@ -46,10 +45,10 @@ exports.findEmployeeById = async (req, res) => {
 
 exports.updateEmployeeById = async (req, res) => {
   const id = req.params.id;
-  const { syndicate, name, address, phone, salary } = req.body;
+  const { syndicate_id, name, address, phone, salary } = req.body;
 
   Employee.update({ _id: id },{
-    syndicate: syndicate,
+    syndicate_id: syndicate_id,
     name: name,
     address: address,
     phone: phone,

@@ -7,7 +7,7 @@ const EmployeeSchema = new Schema({
   address: String,
   phone: String,
   salary: Number,
-  syndicate: {
+  syndicate_id: {
     type: Schema.Types.ObjectId,
     ref: 'syndicate',
     required: true

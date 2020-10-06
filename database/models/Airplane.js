@@ -4,7 +4,7 @@ const Schema = mongoose.Schema
 
 const AirplaneSchema = new Schema({
   serial_number: Number,
-  model: {
+  model_id: {
     type: Schema.Types.ObjectId,
     ref: 'model',
     required: true
